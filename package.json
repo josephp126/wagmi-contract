@@ -1,0 +1,9 @@
+{
+  "name": "wagmiteam-solidity",
+  "description": "WAGMI Team Solidity is a library for Solidity smart contract development.",
+  "version": "1.0.0",
+  "author": "WAGMI Team",
+  "devDependencies": {
+    "hardhat": "2.9.3"
+  }
+}

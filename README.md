@@ -1,3 +1,3 @@
-# wagmiteam-contracts
+# wagmiteam-solidity
 
-WAGMI Team Contracts is a library for secure smart contract development.
+WAGMI Team Solidity is a library for Solidity smart contract development.

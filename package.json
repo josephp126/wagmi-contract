@@ -4,6 +4,7 @@
   "version": "1.0.0",
   "author": "WAGMI Team",
   "devDependencies": {
+    "dotenv": "16.0.0",
     "hardhat": "2.9.3"
   }
 }

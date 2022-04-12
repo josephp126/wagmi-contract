@@ -45,4 +45,12 @@ contract NFT is ERC721, Pausable, Ownable {
     _safeMint(recipient, newItemId);
     return newItemId;
   }
+
+  function _beforeTokenTransfer(address from, address to, uint256 tokenId)
+    internal
+    whenNotPaused
+    override
+  {
+    super._beforeTokenTransfer(from, to, tokenId);
+  }
 }

@@ -3,8 +3,10 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/security/Pausable.sol";
 
-contract NFT is ERC721 {
+contract NFT is ERC721, Pausable, Ownable {
   using Counters for Counters.Counter;
 
   // Constants
@@ -14,6 +16,20 @@ contract NFT is ERC721 {
   Counters.Counter private currentTokenId;
 
   constructor() ERC721("Sample NFT", "SMPL") {}
+
+  function pause()
+    public
+    onlyOwner
+  {
+    _pause();
+  }
+
+  function unpause()
+    public
+    onlyOwner
+  {
+    _unpause();
+  }
 
   function mintTo(address recipient)
     public

@@ -27,6 +27,9 @@ contract NFT is ERC721, Pausable, Ownable {
     _pause();
   }
 
+  /**
+   * @dev Returns contract to normal state.
+   */
   function unpause()
     public
     onlyOwner

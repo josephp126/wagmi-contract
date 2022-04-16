@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.4;
 
-import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "erc721a/contracts/ERC721A.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Burnable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
 
-contract NFT is ERC721, ERC721Burnable, Ownable, Pausable {
+contract NFT is Ownable, ERC721A {
   using Counters for Counters.Counter;
 
   // Constants
@@ -16,7 +16,11 @@ contract NFT is ERC721, ERC721Burnable, Ownable, Pausable {
 
   Counters.Counter private currentTokenId;
 
-  constructor() ERC721("Sample NFT", "SMPL") {}
+  constructor(
+    uint256 maxBatchSize_,
+    uint256 collectionSize_
+  ) ERC721A("Sample NFT", "SMPL", maxBatchSize_, collectionSize_) {}
+
 
   /**
    * @dev Triggers emergency stop mechanism.

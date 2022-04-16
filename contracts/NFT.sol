@@ -2,22 +2,16 @@
 pragma solidity ^0.8.4;
 
 import "erc721a/contracts/ERC721A.sol";
-import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Burnable.sol";
-import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/security/Pausable.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
-contract NFT is Ownable, ERC721A {
+contract NFT is Ownable, ERC721A, ReentrancyGuard {
   uint256 public immutable maxBatchSize;
   uint256 public immutable amountForDevs;
-
-  using Counters for Counters.Counter;
 
   // Constants
   uint256 public constant TOTAL_SUPPLY = 7_777;
   uint256 public constant MINT_PRICE = 0.08 ether;
-
-  Counters.Counter private currentTokenId;
 
   constructor(
     uint256 maxBatchSize_,
@@ -48,20 +42,20 @@ contract NFT is Ownable, ERC721A {
   //   _unpause();
   // }
 
-  function mintTo(address recipient)
-    public
-    payable
-    returns (uint256)
-  {
-    uint256 tokenId = currentTokenId.current();
-    require(tokenId < TOTAL_SUPPLY, "Max supply reached");
-    require(msg.value == MINT_PRICE, "Transaction value did not equal the mint price");
+  // function mintTo(address recipient)
+  //   public
+  //   payable
+  //   returns (uint256)
+  // {
+  //   uint256 tokenId = currentTokenId.current();
+  //   require(tokenId < TOTAL_SUPPLY, "Max supply reached");
+  //   require(msg.value == MINT_PRICE, "Transaction value did not equal the mint price");
 
-    currentTokenId.increment();
-    uint256 newItemId = currentTokenId.current();
-    _safeMint(recipient, newItemId);
-    return newItemId;
-  }
+  //   currentTokenId.increment();
+  //   uint256 newItemId = currentTokenId.current();
+  //   _safeMint(recipient, newItemId);
+  //   return newItemId;
+  // }
 
   // function _beforeTokenTransfer(address from, address to, uint256 tokenId)
   //   internal

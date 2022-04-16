@@ -77,6 +77,13 @@ contract NFT is Ownable, ERC721A, ReentrancyGuard {
   //   super._beforeTokenTransfer(from, to, tokenId);
   // }
 
+  function isPublicSaleOn(
+    uint256 publicSaleStartTime
+  ) public view returns (bool) {
+    return
+      block.timestamp >= publicSaleStartTime;
+  }
+
   function publicSaleMint(uint256 quantity) external payable callerIsUser
   {
     require(totalSupply() + quantity <= collectionSize, "reached max supply");

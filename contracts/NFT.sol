@@ -8,6 +8,8 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
 
 contract NFT is Ownable, ERC721A {
+  uint256 public immutable maxPerAddressDuringMint;
+
   using Counters for Counters.Counter;
 
   // Constants
@@ -19,7 +21,9 @@ contract NFT is Ownable, ERC721A {
   constructor(
     uint256 maxBatchSize_,
     uint256 collectionSize_
-  ) ERC721A("Sample NFT", "SMPL", maxBatchSize_, collectionSize_) {}
+  ) ERC721A("Sample NFT", "SMPL", maxBatchSize_, collectionSize_) {
+    maxPerAddressDuringMint = maxBatchSize_;
+  }
 
 
   /**

@@ -8,7 +8,8 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
 
 contract NFT is Ownable, ERC721A {
-  uint256 public immutable maxPerAddressDuringMint;
+  uint256 public immutable maxBatchSize;
+  uint256 public immutable amountForDevs;
 
   using Counters for Counters.Counter;
 
@@ -20,31 +21,32 @@ contract NFT is Ownable, ERC721A {
 
   constructor(
     uint256 maxBatchSize_,
-    uint256 collectionSize_
-  ) ERC721A("Sample NFT", "SMPL", maxBatchSize_, collectionSize_) {
-    maxPerAddressDuringMint = maxBatchSize_;
+    uint256 amountForDevs_
+  ) ERC721A("Sample NFT", "SMPL") {
+    maxBatchSize = maxBatchSize_;
+    amountForDevs = amountForDevs_;
   }
 
 
-  /**
-   * @dev Triggers emergency stop mechanism.
-   */
-  function pause()
-    public
-    onlyOwner
-  {
-    _pause();
-  }
+  // /**
+  //  * @dev Triggers emergency stop mechanism.
+  //  */
+  // function pause()
+  //   public
+  //   onlyOwner
+  // {
+  //   _pause();
+  // }
 
-  /**
-   * @dev Returns contract to normal state.
-   */
-  function unpause()
-    public
-    onlyOwner
-  {
-    _unpause();
-  }
+  // /**
+  //  * @dev Returns contract to normal state.
+  //  */
+  // function unpause()
+  //   public
+  //   onlyOwner
+  // {
+  //   _unpause();
+  // }
 
   function mintTo(address recipient)
     public
@@ -61,11 +63,26 @@ contract NFT is Ownable, ERC721A {
     return newItemId;
   }
 
-  function _beforeTokenTransfer(address from, address to, uint256 tokenId)
-    internal
-    whenNotPaused
-    override
-  {
-    super._beforeTokenTransfer(from, to, tokenId);
+  // function _beforeTokenTransfer(address from, address to, uint256 tokenId)
+  //   internal
+  //   whenNotPaused
+  //   override
+  // {
+  //   super._beforeTokenTransfer(from, to, tokenId);
+  // }
+
+  function devMint(uint256 quantity) external onlyOwner {
+    require(
+      totalSupply() + quantity <= amountForDevs,
+      "too many already minted before dev mint"
+    );
+    require(
+      quantity % maxBatchSize == 0,
+      "can only mint a multiple of the maxBatchSize"
+    );
+    uint256 numChunks = quantity / maxBatchSize;
+    for (uint256 i = 0; i < numChunks; i++) {
+      _safeMint(msg.sender, maxBatchSize);
+    }
   }
 }

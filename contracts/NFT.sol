@@ -11,6 +11,13 @@ contract NFT is Ownable, ERC721A, ReentrancyGuard {
   uint256 public immutable maxPerAddressDuringPublicSaleMint;
   uint256 public immutable amountForDevs;
 
+  struct SaleConfig {
+    uint32 publicSaleStartTime;
+    uint64 publicSalePrice;
+  }
+
+  SaleConfig public saleConfig;
+
   // Constants
   uint256 public constant MINT_PRICE = 0.08 ether;
 
@@ -28,6 +35,13 @@ contract NFT is Ownable, ERC721A, ReentrancyGuard {
   modifier callerIsUser() {
     require(tx.origin == msg.sender, "The caller is another contract");
     _;
+  }
+
+  function refundIfOver(uint256 price) private {
+    require(msg.value >= price, "need to send more ETH");
+    if (msg.value > price) {
+      payable(msg.sender).transfer(msg.value - price);
+    }
   }
 
   function numberMinted(address owner) public view returns (uint256) {
@@ -77,21 +91,32 @@ contract NFT is Ownable, ERC721A, ReentrancyGuard {
   //   super._beforeTokenTransfer(from, to, tokenId);
   // }
 
-  function isPublicSaleOn(
-    uint256 publicSaleStartTime
-  ) public view returns (bool) {
-    return
-      block.timestamp >= publicSaleStartTime;
+  function startPublicSale(
+    uint32 startTime,
+    uint64 priceWei
+  ) external onlyOwner {
+    saleConfig = SaleConfig(
+      startTime,
+      priceWei
+    );
   }
 
   function publicSaleMint(uint256 quantity) external payable callerIsUser
   {
+    uint256 price = uint256(saleConfig.publicSalePrice);
+    uint256 startTime = uint256(saleConfig.publicSaleStartTime);
+    require(
+      startTime != 0 && block.timestamp >= startTime,
+      "public sale has not begun yet"
+    );
     require(totalSupply() + quantity <= collectionSize, "reached max supply");
     require(
       numberMinted(msg.sender) + quantity <= maxPerAddressDuringPublicSaleMint,
       "can not mint this many"
     );
+    uint256 totalCost = price * quantity;
     _safeMint(msg.sender, quantity);
+    refundIfOver(totalCost);
   }
 
   function devMint(uint256 quantity) external onlyOwner {

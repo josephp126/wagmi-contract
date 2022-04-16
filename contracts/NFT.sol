@@ -18,9 +18,6 @@ contract NFT is Ownable, ERC721A, ReentrancyGuard {
 
   SaleConfig public saleConfig;
 
-  // Constants
-  uint256 public constant MINT_PRICE = 0.08 ether;
-
   constructor(
     uint256 collectionSize_,
     uint256 maxBatchSize_,

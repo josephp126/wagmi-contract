@@ -30,6 +30,10 @@ contract NFT is Ownable, ERC721A, ReentrancyGuard {
     _;
   }
 
+  function numberMinted(address owner) public view returns (uint256) {
+    return _numberMinted(owner);
+  }
+
   // /**
   //  * @dev Triggers emergency stop mechanism.
   //  */
@@ -96,9 +100,5 @@ contract NFT is Ownable, ERC721A, ReentrancyGuard {
     for (uint256 i = 0; i < numChunks; i++) {
       _safeMint(msg.sender, maxBatchSize);
     }
-  }
-
-  function numberMinted(address owner) public view returns (uint256) {
-    return _numberMinted(owner);
   }
 }

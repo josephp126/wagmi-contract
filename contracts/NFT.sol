@@ -21,6 +21,10 @@ contract NFT is Ownable, ERC721A, ReentrancyGuard {
     amountForDevs = amountForDevs_;
   }
 
+  modifier callerIsUser() {
+    require(tx.origin == msg.sender, "The caller is another contract");
+    _;
+  }
 
   // /**
   //  * @dev Triggers emergency stop mechanism.

@@ -6,6 +6,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 contract NFT is Ownable, ERC721A, ReentrancyGuard {
+  uint256 public immutable maxPerAddressDuringPublicSaleMint;
   uint256 public immutable maxBatchSize;
   uint256 public immutable amountForDevs;
 
@@ -18,6 +19,7 @@ contract NFT is Ownable, ERC721A, ReentrancyGuard {
     uint256 amountForDevs_
   ) ERC721A("Sample NFT", "SMPL") {
     maxBatchSize = maxBatchSize_;
+    maxPerAddressDuringPublicSaleMint = maxBatchSize_;
     amountForDevs = amountForDevs_;
   }
 

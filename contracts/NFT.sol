@@ -83,4 +83,8 @@ contract NFT is Ownable, ERC721A, ReentrancyGuard {
       _safeMint(msg.sender, maxBatchSize);
     }
   }
+
+  function numberMinted(address owner) public view returns (uint256) {
+    return _numberMinted(owner);
+  }
 }

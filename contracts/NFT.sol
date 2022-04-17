@@ -116,4 +116,9 @@ contract NFT is Ownable, ERC721A, Pausable, ReentrancyGuard {
       _safeMint(msg.sender, maxBatchSize);
     }
   }
+
+  function withdrawMoney() external onlyOwner nonReentrant {
+    (bool success, ) = msg.sender.call{value: address(this).balance}("");
+    require(success, "transfer failed");
+  }
 }

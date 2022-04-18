@@ -119,6 +119,10 @@ contract NFT is Ownable, ERC721A, Pausable, ReentrancyGuard {
     }
   }
 
+  function _baseURI() internal view virtual override returns (string memory) {
+    return _baseTokenURI;
+  }
+
   function setBaseURI(string calldata baseURI) external onlyOwner {
     _baseTokenURI = baseURI;
   }

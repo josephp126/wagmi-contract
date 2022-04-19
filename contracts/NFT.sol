@@ -140,6 +140,7 @@ contract NFT is Ownable, ERC721A, Pausable, ReentrancyGuard {
     uint256 startTime = uint256(saleConfig.publicSaleStartTime);
     uint256 maxPerAddress
       = uint256(saleConfig.maxPerAddressDuringPublicSaleMint);
+    require(price != 0, "public sale has not begun yet");
     require(
       startTime != 0 && block.timestamp >= startTime,
       "public sale has not begun yet"

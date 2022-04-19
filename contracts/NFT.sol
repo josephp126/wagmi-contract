@@ -86,6 +86,24 @@ contract NFT is Ownable, ERC721A, Pausable, ReentrancyGuard {
     saleConfig.privateSalePrice = privateSalePriveWei;
   }
 
+  function privateSaleMint(uint256 quantity) external payable callerIsUser
+  {
+    uint256 price = uint256(saleConfig.privateSalePrice);
+    uint256 saleStartTime = uint256(saleConfig.privateSaleStartTime);
+    require(price != 0, "private sale sale has not begun yet");
+    require(
+      saleStartTime != 0 && block.timestamp >= saleStartTime,
+      "private sale has not begun yet"
+    );
+    require(totalSupply() + quantity <= collectionSize, "reached max supply");
+    require(
+      numberMinted(msg.sender) + quantity <= maxPerAddressDuringPublicSaleMint,
+      "can not mint this many"
+    );
+    _safeMint(msg.sender, quantity);
+    refundIfOver(price * quantity);
+  }
+
   function endPrivateSaleAndSetupPublicSaleInfo(
     uint32 publicSaleStartTime,
     uint64 publicSalePriceWei

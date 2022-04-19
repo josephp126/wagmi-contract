@@ -9,7 +9,6 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 contract NFT is Ownable, ERC721A, Pausable, ReentrancyGuard {
   uint256 public immutable collectionSize;
   uint256 public immutable maxBatchSize;
-  uint256 public immutable maxPerAddressDuringPublicSaleMint;
   uint256 public immutable amountForDevs;
 
   struct SaleConfig {
@@ -17,6 +16,8 @@ contract NFT is Ownable, ERC721A, Pausable, ReentrancyGuard {
     uint32 publicSaleStartTime;
     uint64 privateSalePrice;
     uint64 publicSalePrice;
+    uint8 maxPerAddressDuringPrivateSaleMint;
+    uint8 maxPerAddressDuringPublicSaleMint;
   }
 
   SaleConfig public saleConfig;
@@ -30,7 +31,6 @@ contract NFT is Ownable, ERC721A, Pausable, ReentrancyGuard {
   ) ERC721A("Sample NFT", "SMPL") {
     collectionSize = collectionSize_;
     maxBatchSize = maxBatchSize_;
-    maxPerAddressDuringPublicSaleMint = maxBatchSize_;
     amountForDevs = amountForDevs_;
   }
 
@@ -90,6 +90,8 @@ contract NFT is Ownable, ERC721A, Pausable, ReentrancyGuard {
   {
     uint256 price = uint256(saleConfig.privateSalePrice);
     uint256 saleStartTime = uint256(saleConfig.privateSaleStartTime);
+    uint256 maxPerAddress
+      = uint256(saleConfig.maxPerAddressDuringPrivateSaleMint);
     require(price != 0, "private sale sale has not begun yet");
     require(
       saleStartTime != 0 && block.timestamp >= saleStartTime,
@@ -97,7 +99,7 @@ contract NFT is Ownable, ERC721A, Pausable, ReentrancyGuard {
     );
     require(totalSupply() + quantity <= collectionSize, "reached max supply");
     require(
-      numberMinted(msg.sender) + quantity <= maxPerAddressDuringPublicSaleMint,
+      numberMinted(msg.sender) + quantity <= maxPerAddress,
       "can not mint this many"
     );
     _safeMint(msg.sender, quantity);
@@ -120,13 +122,15 @@ contract NFT is Ownable, ERC721A, Pausable, ReentrancyGuard {
   {
     uint256 price = uint256(saleConfig.publicSalePrice);
     uint256 startTime = uint256(saleConfig.publicSaleStartTime);
+    uint256 maxPerAddress
+      = uint256(saleConfig.maxPerAddressDuringPublicSaleMint);
     require(
       startTime != 0 && block.timestamp >= startTime,
       "public sale has not begun yet"
     );
     require(totalSupply() + quantity <= collectionSize, "reached max supply");
     require(
-      numberMinted(msg.sender) + quantity <= maxPerAddressDuringPublicSaleMint,
+      numberMinted(msg.sender) + quantity <= maxPerAddress,
       "can not mint this many"
     );
     uint256 totalCost = price * quantity;

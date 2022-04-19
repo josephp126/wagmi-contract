@@ -86,16 +86,6 @@ contract NFT is Ownable, ERC721A, Pausable, ReentrancyGuard {
     saleConfig.privateSalePrice = privateSalePriveWei;
   }
 
-  // function startPublicSale(
-  //   uint32 startTime,
-  //   uint64 priceWei
-  // ) external onlyOwner {
-  //   saleConfig = SaleConfig(
-  //     startTime,
-  //     priceWei
-  //   );
-  // }
-
   function endPrivateSaleAndSetupPublicSaleInfo(
     uint32 publicSaleStartTime,
     uint64 publicSalePriceWei

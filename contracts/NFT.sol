@@ -139,9 +139,8 @@ contract NFT is Ownable, ERC721A, Pausable, ReentrancyGuard {
       numberMinted(msg.sender) + quantity <= maxPerAddress,
       "can not mint this many"
     );
-    uint256 totalCost = price * quantity;
     _safeMint(msg.sender, quantity);
-    refundIfOver(totalCost);
+    refundIfOver(price * quantity);
   }
 
   function devMint(uint256 quantity) external onlyOwner {

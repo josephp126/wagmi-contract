@@ -5,6 +5,7 @@ import "erc721a/contracts/ERC721A.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 
 contract NFT is Ownable, ERC721A, Pausable, ReentrancyGuard {
   uint256 public immutable collectionSize;
@@ -12,6 +13,7 @@ contract NFT is Ownable, ERC721A, Pausable, ReentrancyGuard {
   uint256 public immutable amountForDevs;
 
   struct SaleConfig {
+    bytes32 merkleRoot;
     uint32 whitelistSaleStartTime;
     uint32 publicSaleStartTime;
     uint64 whitelistSalePrice;
@@ -89,8 +91,10 @@ contract NFT is Ownable, ERC721A, Pausable, ReentrancyGuard {
       = maxPerAddressDuringWhitelistSaleMint;
   }
 
-  function whitelistSaleMint(uint256 quantity) external payable callerIsUser
-  {
+  function whitelistSaleMint(
+    bytes32[] calldata _merkleProof,
+    uint256 quantity
+  ) external payable callerIsUser {
     uint256 price = uint256(saleConfig.whitelistSalePrice);
     uint256 saleStartTime = uint256(saleConfig.whitelistSaleStartTime);
     uint256 maxPerAddress
@@ -101,6 +105,11 @@ contract NFT is Ownable, ERC721A, Pausable, ReentrancyGuard {
       "whitelist sale has not begun yet"
     );
     require(totalSupply() + quantity <= collectionSize, "reached max supply");
+    bytes32 leaf = keccak256 (abi.encodePacked(msg.sender));
+    require(
+      MerkleProof.verify(_merkleProof, saleConfig.merkleRoot, leaf),
+      "invalid whitelist proof"
+    );
     require(
       numberMinted(msg.sender) + quantity <= maxPerAddress,
       "can not mint this many"
@@ -115,6 +124,7 @@ contract NFT is Ownable, ERC721A, Pausable, ReentrancyGuard {
     uint8 maxPerAddressDuringPublicSaleMint
   ) external onlyOwner {
     saleConfig = SaleConfig(
+      "",
       0,
       publicSaleStartTime,
       0,

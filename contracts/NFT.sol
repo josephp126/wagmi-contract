@@ -91,6 +91,10 @@ contract NFT is Ownable, ERC721A, Pausable, ReentrancyGuard {
       = maxPerAddressDuringWhitelistSaleMint;
   }
 
+  function setMerkleRoot(bytes32 root) external onlyOwner {
+    saleConfig.merkleRoot = root;
+  }
+
   function whitelistSaleMint(
     bytes32[] calldata _merkleProof,
     uint256 quantity

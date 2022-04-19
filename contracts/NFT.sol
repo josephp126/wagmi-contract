@@ -12,11 +12,11 @@ contract NFT is Ownable, ERC721A, Pausable, ReentrancyGuard {
   uint256 public immutable amountForDevs;
 
   struct SaleConfig {
-    uint32 privateSaleStartTime;
+    uint32 whitelistSaleStartTime;
     uint32 publicSaleStartTime;
-    uint64 privateSalePrice;
+    uint64 whitelistSalePrice;
     uint64 publicSalePrice;
-    uint8 maxPerAddressDuringPrivateSaleMint;
+    uint8 maxPerAddressDuringWhitelistSaleMint;
     uint8 maxPerAddressDuringPublicSaleMint;
   }
 
@@ -78,27 +78,27 @@ contract NFT is Ownable, ERC721A, Pausable, ReentrancyGuard {
     super._beforeTokenTransfers(from, to, startTokenId, quantity);
   }
 
-  function setupPrivateSale(
-    uint32 privateSaleStartTime,
-    uint64 privateSalePriveWei,
-    uint8 maxPerAddressDuringPrivateSaleMint
+  function setupWhitelistSale(
+    uint32 whitelistSaleStartTime,
+    uint64 whitelistSalePriveWei,
+    uint8 maxPerAddressDuringWhitelistSaleMint
   ) external onlyOwner {
-    saleConfig.privateSaleStartTime = privateSaleStartTime;
-    saleConfig.privateSalePrice = privateSalePriveWei;
-    saleConfig.maxPerAddressDuringPrivateSaleMint
-      = maxPerAddressDuringPrivateSaleMint;
+    saleConfig.whitelistSaleStartTime = whitelistSaleStartTime;
+    saleConfig.whitelistSalePrice = whitelistSalePriveWei;
+    saleConfig.maxPerAddressDuringWhitelistSaleMint
+      = maxPerAddressDuringWhitelistSaleMint;
   }
 
-  function privateSaleMint(uint256 quantity) external payable callerIsUser
+  function whitelistSaleMint(uint256 quantity) external payable callerIsUser
   {
-    uint256 price = uint256(saleConfig.privateSalePrice);
-    uint256 saleStartTime = uint256(saleConfig.privateSaleStartTime);
+    uint256 price = uint256(saleConfig.whitelistSalePrice);
+    uint256 saleStartTime = uint256(saleConfig.whitelistSaleStartTime);
     uint256 maxPerAddress
-      = uint256(saleConfig.maxPerAddressDuringPrivateSaleMint);
-    require(price != 0, "private sale sale has not begun yet");
+      = uint256(saleConfig.maxPerAddressDuringWhitelistSaleMint);
+    require(price != 0, "whitelist sale has not begun yet");
     require(
       saleStartTime != 0 && block.timestamp >= saleStartTime,
-      "private sale has not begun yet"
+      "whitelist sale has not begun yet"
     );
     require(totalSupply() + quantity <= collectionSize, "reached max supply");
     require(
@@ -109,7 +109,7 @@ contract NFT is Ownable, ERC721A, Pausable, ReentrancyGuard {
     refundIfOver(price * quantity);
   }
 
-  function endPrivateSaleAndSetupPublicSaleInfo(
+  function endWhitelistSaleAndSetupPublicSaleInfo(
     uint32 publicSaleStartTime,
     uint64 publicSalePriceWei,
     uint8 maxPerAddressDuringPublicSaleMint

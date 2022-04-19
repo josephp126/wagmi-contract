@@ -13,7 +13,9 @@ contract NFT is Ownable, ERC721A, Pausable, ReentrancyGuard {
   uint256 public immutable amountForDevs;
 
   struct SaleConfig {
+    uint32 privateSaleStartTime;
     uint32 publicSaleStartTime;
+    uint64 privateSalePrice;
     uint64 publicSalePrice;
   }
 

@@ -80,10 +80,13 @@ contract NFT is Ownable, ERC721A, Pausable, ReentrancyGuard {
 
   function setupPrivateSale(
     uint32 privateSaleStartTime,
-    uint64 privateSalePriveWei
+    uint64 privateSalePriveWei,
+    uint8 maxPerAddressDuringPrivateSaleMint
   ) external onlyOwner {
     saleConfig.privateSaleStartTime = privateSaleStartTime;
     saleConfig.privateSalePrice = privateSalePriveWei;
+    saleConfig.maxPerAddressDuringPrivateSaleMint
+      = maxPerAddressDuringPrivateSaleMint;
   }
 
   function privateSaleMint(uint256 quantity) external payable callerIsUser
@@ -108,13 +111,16 @@ contract NFT is Ownable, ERC721A, Pausable, ReentrancyGuard {
 
   function endPrivateSaleAndSetupPublicSaleInfo(
     uint32 publicSaleStartTime,
-    uint64 publicSalePriceWei
+    uint64 publicSalePriceWei,
+    uint8 maxPerAddressDuringPublicSaleMint
   ) external onlyOwner {
     saleConfig = SaleConfig(
       0,
       publicSaleStartTime,
       0,
-      publicSalePriceWei
+      publicSalePriceWei,
+      0,
+      maxPerAddressDuringPublicSaleMint
     );
   }
 

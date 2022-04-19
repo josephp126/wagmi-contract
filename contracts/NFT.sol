@@ -124,7 +124,7 @@ contract NFT is Ownable, ERC721A, Pausable, ReentrancyGuard {
     refundIfOver(price * quantity);
   }
 
-  function endWhitelistSaleAndSetupPublicSaleInfo(
+  function endWhitelistSaleAndSetupPublicSale(
     uint32 publicSaleStartTime,
     uint64 publicSalePriceWei,
     uint8 maxPerAddressDuringPublicSaleMint

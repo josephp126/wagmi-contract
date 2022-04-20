@@ -17,6 +17,9 @@ contract NFT is ERC721, Pausable, Ownable {
 
   constructor() ERC721("Sample NFT", "SMPL") {}
 
+  /**
+   * @dev Triggers emergency stop mechanism.
+   */
   function pause()
     public
     onlyOwner
@@ -24,6 +27,9 @@ contract NFT is ERC721, Pausable, Ownable {
     _pause();
   }
 
+  /**
+   * @dev Returns contract to normal state.
+   */
   function unpause()
     public
     onlyOwner

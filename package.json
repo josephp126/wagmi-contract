@@ -8,7 +8,6 @@
     "deploy": "hardhat deploy",
     "verify": "hardhat verify"
   },
-  "author": "WAGMI Team",
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "2.0.5",
     "@nomiclabs/hardhat-etherscan": "3.0.3",
@@ -16,5 +15,7 @@
     "dotenv": "16.0.0",
     "ethers": "5.6.3",
     "hardhat": "2.9.3"
-  }
+  },
+  "author": "WAGMI Team",
+  "license": "MIT"
 }

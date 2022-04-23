@@ -3,9 +3,10 @@ pragma solidity ^0.8.4;
 
 import "erc721a/contracts/ERC721A.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
-contract NFT is Ownable, ERC721A, ReentrancyGuard {
+contract NFT is Ownable, ERC721A, Pausable, ReentrancyGuard {
   uint256 public immutable collectionSize;
   uint256 public immutable maxBatchSize;
   uint256 public immutable maxPerAddressDuringPublicSaleMint;
@@ -45,25 +46,21 @@ contract NFT is Ownable, ERC721A, ReentrancyGuard {
     return _numberMinted(owner);
   }
 
-  // /**
-  //  * @dev Triggers emergency stop mechanism.
-  //  */
-  // function pause()
-  //   public
-  //   onlyOwner
-  // {
-  //   _pause();
-  // }
+  /**
+   * @dev Triggers emergency stop mechanism.
+   */
+  function pause() external onlyOwner
+  {
+    _pause();
+  }
 
-  // /**
-  //  * @dev Returns contract to normal state.
-  //  */
-  // function unpause()
-  //   public
-  //   onlyOwner
-  // {
-  //   _unpause();
-  // }
+  /**
+   * @dev Returns contract to normal state.
+   */
+  function unpause() external onlyOwner
+  {
+    _unpause();
+  }
 
   // function _beforeTokenTransfer(address from, address to, uint256 tokenId)
   //   internal

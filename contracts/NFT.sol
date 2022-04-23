@@ -62,13 +62,17 @@ contract NFT is Ownable, ERC721A, Pausable, ReentrancyGuard {
     _unpause();
   }
 
-  // function _beforeTokenTransfer(address from, address to, uint256 tokenId)
-  //   internal
-  //   whenNotPaused
-  //   override
-  // {
-  //   super._beforeTokenTransfer(from, to, tokenId);
-  // }
+  /**
+    * @dev Hook that is called before minting and burning one token.
+  */
+  function _beforeTokenTransfers(
+      address from,
+      address to,
+      uint256 startTokenId,
+      uint256 quantity
+  ) internal virtual whenNotPaused override {
+    super._beforeTokenTransfers(from, to, startTokenId, quantity);
+  }
 
   function startPublicSale(
     uint32 startTime,

@@ -19,6 +19,8 @@ contract NFT is Ownable, ERC721A, Pausable, ReentrancyGuard {
 
   SaleConfig public saleConfig;
 
+  string private _baseTokenURI;
+
   constructor(
     uint256 collectionSize_,
     uint256 maxBatchSize_,
@@ -115,6 +117,14 @@ contract NFT is Ownable, ERC721A, Pausable, ReentrancyGuard {
     for (uint256 i = 0; i < numChunks; i++) {
       _safeMint(msg.sender, maxBatchSize);
     }
+  }
+
+  function _baseURI() internal view virtual override returns (string memory) {
+    return _baseTokenURI;
+  }
+
+  function setBaseURI(string calldata baseURI) external onlyOwner {
+    _baseTokenURI = baseURI;
   }
 
   function withdrawMoney() external onlyOwner nonReentrant {

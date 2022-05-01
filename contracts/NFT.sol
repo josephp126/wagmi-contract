@@ -12,6 +12,23 @@ contract NFT is Ownable, ERC721A, Pausable, ReentrancyGuard {
   uint256 public maxBatchSize;
   uint256 public amountForDevs;
 
+  struct WhitelistSaleConfig {
+    bytes32 merkleRoot;
+    uint32 startTime;
+    uint64 price;
+    uint8 maxPerAddress;
+  }
+
+  WhitelistSaleConfig public whitelistSaleConfig;
+
+  struct PublicSaleConfig {
+    uint32 startTime;
+    uint64 price;
+    uint8 maxPerAddress;
+  }
+
+  PublicSaleConfig public publicSaleConfig;
+
   struct SaleConfig {
     bytes32 merkleRoot;
     uint32 whitelistSaleStartTime;

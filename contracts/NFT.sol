@@ -8,9 +8,9 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 
 contract NFT is Ownable, ERC721A, Pausable, ReentrancyGuard {
-  uint256 public immutable collectionSize;
-  uint256 public immutable maxBatchSize;
-  uint256 public immutable amountForDevs;
+  uint256 public collectionSize;
+  uint256 public maxBatchSize;
+  uint256 public amountForDevs;
 
   struct SaleConfig {
     bytes32 merkleRoot;

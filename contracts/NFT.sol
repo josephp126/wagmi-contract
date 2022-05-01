@@ -183,6 +183,10 @@ contract NFT is Ownable, ERC721A, Pausable, ReentrancyGuard {
     _baseTokenURI = baseURI;
   }
 
+  function setCollectionSize(uint256 size) external onlyOwner {
+    collectionSize = size;
+  }
+
   function withdrawMoney() external onlyOwner nonReentrant {
     (bool success, ) = msg.sender.call{value: address(this).balance}("");
     require(success, "transfer failed");

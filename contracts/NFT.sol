@@ -29,18 +29,6 @@ contract NFT is Ownable, ERC721A, Pausable, ReentrancyGuard {
 
   PublicSaleConfig public publicSaleConfig;
 
-  struct SaleConfig {
-    bytes32 merkleRoot;
-    uint32 whitelistSaleStartTime;
-    uint32 publicSaleStartTime;
-    uint64 whitelistSalePrice;
-    uint64 publicSalePrice;
-    uint8 maxPerAddressDuringWhitelistSaleMint;
-    uint8 maxPerAddressDuringPublicSaleMint;
-  }
-
-  SaleConfig public saleConfig;
-
   string private _baseTokenURI;
 
   constructor(
@@ -145,23 +133,17 @@ contract NFT is Ownable, ERC721A, Pausable, ReentrancyGuard {
     uint8 maxPerAddressDuringPublicSaleMint
   ) external onlyOwner {
     whitelistSaleConfig.startTime = 0;
-    saleConfig = SaleConfig(
-      "",
-      0,
-      publicSaleStartTime,
-      0,
-      publicSalePriceWei,
-      0,
-      maxPerAddressDuringPublicSaleMint
-    );
+
+    publicSaleConfig.startTime = publicSaleStartTime;
+    publicSaleConfig.price = publicSalePriceWei;
+    publicSaleConfig.maxPerAddress = maxPerAddressDuringPublicSaleMint;
   }
 
   function publicSaleMint(uint256 quantity) external payable callerIsUser
   {
-    uint256 price = uint256(saleConfig.publicSalePrice);
-    uint256 startTime = uint256(saleConfig.publicSaleStartTime);
-    uint256 maxPerAddress
-      = uint256(saleConfig.maxPerAddressDuringPublicSaleMint);
+    uint256 price = uint256(publicSaleConfig.price);
+    uint256 startTime = uint256(publicSaleConfig.startTime);
+    uint256 maxPerAddress = uint256(publicSaleConfig.maxPerAddress);
     require(price != 0, "public sale has not begun yet");
     require(
       startTime != 0 && block.timestamp >= startTime,

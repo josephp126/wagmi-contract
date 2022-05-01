@@ -103,25 +103,23 @@ contract NFT is Ownable, ERC721A, Pausable, ReentrancyGuard {
     uint64 whitelistSalePriceWei,
     uint8 maxPerAddressDuringWhitelistSaleMint
   ) external onlyOwner {
-    saleConfig.merkleRoot = merkleRoot;
-    saleConfig.whitelistSaleStartTime = whitelistSaleStartTime;
-    saleConfig.whitelistSalePrice = whitelistSalePriceWei;
-    saleConfig.maxPerAddressDuringWhitelistSaleMint
-      = maxPerAddressDuringWhitelistSaleMint;
+    whitelistSaleConfig.merkleRoot = merkleRoot;
+    whitelistSaleConfig.startTime = whitelistSaleStartTime;
+    whitelistSaleConfig.price = whitelistSalePriceWei;
+    whitelistSaleConfig.maxPerAddress = maxPerAddressDuringWhitelistSaleMint;
   }
 
   function setMerkleRoot(bytes32 root) external onlyOwner {
-    saleConfig.merkleRoot = root;
+    whitelistSaleConfig.merkleRoot = root;
   }
 
   function whitelistSaleMint(
     bytes32[] calldata _merkleProof,
     uint256 quantity
   ) external payable callerIsUser {
-    uint256 price = uint256(saleConfig.whitelistSalePrice);
-    uint256 saleStartTime = uint256(saleConfig.whitelistSaleStartTime);
-    uint256 maxPerAddress
-      = uint256(saleConfig.maxPerAddressDuringWhitelistSaleMint);
+    uint256 price = uint256(whitelistSaleConfig.price);
+    uint256 saleStartTime = uint256(whitelistSaleConfig.startTime);
+    uint256 maxPerAddress = uint256(whitelistSaleConfig.maxPerAddress);
     require(price != 0, "whitelist sale has not begun yet");
     require(
       saleStartTime != 0 && block.timestamp >= saleStartTime,
@@ -130,7 +128,7 @@ contract NFT is Ownable, ERC721A, Pausable, ReentrancyGuard {
     require(totalSupply() + quantity <= collectionSize, "reached max supply");
     bytes32 leaf = keccak256 (abi.encodePacked(msg.sender));
     require(
-      MerkleProof.verify(_merkleProof, saleConfig.merkleRoot, leaf),
+      MerkleProof.verify(_merkleProof, whitelistSaleConfig.merkleRoot, leaf),
       "invalid whitelist proof"
     );
     require(
@@ -146,6 +144,7 @@ contract NFT is Ownable, ERC721A, Pausable, ReentrancyGuard {
     uint64 publicSalePriceWei,
     uint8 maxPerAddressDuringPublicSaleMint
   ) external onlyOwner {
+    whitelistSaleConfig.startTime = 0;
     saleConfig = SaleConfig(
       "",
       0,

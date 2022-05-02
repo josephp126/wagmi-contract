@@ -9,6 +9,7 @@ task("check-balance", "Prints out the balance of your account").setAction(async 
 });
 
 task("deploy", "Deploys the NFT.sol contract").setAction(async function (taskArguments, hre) {
+	console.log("deploy")
 	const contractFactory = await hre.ethers.getContractFactory("NFT", getAccount());
 	const contract = await contractFactory.deploy();
 	console.log(`Contract deployed to address: ${contract.address}`);

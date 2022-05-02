@@ -8,6 +8,9 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 
 contract NFT is Ownable, ERC721A, Pausable, ReentrancyGuard {
+  mapping(address => uint256) private _whitelistSaleMinted;
+  mapping(address => uint256) private _publicSaleMinted;
+
   uint256 public collectionSize;
   uint256 public maxBatchSize;
   uint256 public amountForDevs;
@@ -51,10 +54,6 @@ contract NFT is Ownable, ERC721A, Pausable, ReentrancyGuard {
     if (msg.value > price) {
       payable(msg.sender).transfer(msg.value - price);
     }
-  }
-
-  function numberMinted(address owner) public view returns (uint256) {
-    return _numberMinted(owner);
   }
 
   /**
@@ -120,10 +119,12 @@ contract NFT is Ownable, ERC721A, Pausable, ReentrancyGuard {
       "invalid whitelist proof"
     );
     require(
-      numberMinted(msg.sender) + quantity <= maxPerAddress,
+      _whitelistSaleMinted[msg.sender] + quantity <= maxPerAddress,
       "can not mint this many"
     );
     _safeMint(msg.sender, quantity);
+    _whitelistSaleMinted[msg.sender]
+      = _whitelistSaleMinted[msg.sender] + quantity;
     refundIfOver(price * quantity);
   }
 
@@ -151,10 +152,12 @@ contract NFT is Ownable, ERC721A, Pausable, ReentrancyGuard {
     );
     require(totalSupply() + quantity <= collectionSize, "reached max supply");
     require(
-      numberMinted(msg.sender) + quantity <= maxPerAddress,
+      _publicSaleMinted[msg.sender] + quantity <= maxPerAddress,
       "can not mint this many"
     );
     _safeMint(msg.sender, quantity);
+    _publicSaleMinted[msg.sender] =
+      _publicSaleMinted[msg.sender] + quantity;
     refundIfOver(price * quantity);
   }
 

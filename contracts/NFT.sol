@@ -8,21 +8,29 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 
 contract NFT is Ownable, ERC721A, Pausable, ReentrancyGuard {
-  uint256 public immutable collectionSize;
-  uint256 public immutable maxBatchSize;
-  uint256 public immutable amountForDevs;
+  mapping(address => uint256) private _whitelistSaleMinted;
+  mapping(address => uint256) private _publicSaleMinted;
 
-  struct SaleConfig {
+  uint256 public collectionSize;
+  uint256 public maxBatchSize;
+  uint256 public amountForDevs;
+
+  struct WhitelistSaleConfig {
     bytes32 merkleRoot;
-    uint32 whitelistSaleStartTime;
-    uint32 publicSaleStartTime;
-    uint64 whitelistSalePrice;
-    uint64 publicSalePrice;
-    uint8 maxPerAddressDuringWhitelistSaleMint;
-    uint8 maxPerAddressDuringPublicSaleMint;
+    uint32 startTime;
+    uint64 price;
+    uint8 maxPerAddress;
   }
 
-  SaleConfig public saleConfig;
+  WhitelistSaleConfig public whitelistSaleConfig;
+
+  struct PublicSaleConfig {
+    uint32 startTime;
+    uint64 price;
+    uint8 maxPerAddress;
+  }
+
+  PublicSaleConfig public publicSaleConfig;
 
   string private _baseTokenURI;
 
@@ -46,10 +54,6 @@ contract NFT is Ownable, ERC721A, Pausable, ReentrancyGuard {
     if (msg.value > price) {
       payable(msg.sender).transfer(msg.value - price);
     }
-  }
-
-  function numberMinted(address owner) public view returns (uint256) {
-    return _numberMinted(owner);
   }
 
   /**
@@ -83,28 +87,28 @@ contract NFT is Ownable, ERC721A, Pausable, ReentrancyGuard {
   function setupWhitelistSale(
     bytes32 merkleRoot,
     uint32 whitelistSaleStartTime,
-    uint64 whitelistSalePriveWei,
+    uint64 whitelistSalePriceWei,
     uint8 maxPerAddressDuringWhitelistSaleMint
   ) external onlyOwner {
-    saleConfig.merkleRoot = merkleRoot;
-    saleConfig.whitelistSaleStartTime = whitelistSaleStartTime;
-    saleConfig.whitelistSalePrice = whitelistSalePriveWei;
-    saleConfig.maxPerAddressDuringWhitelistSaleMint
-      = maxPerAddressDuringWhitelistSaleMint;
+    whitelistSaleConfig.merkleRoot = merkleRoot;
+    whitelistSaleConfig.startTime = whitelistSaleStartTime;
+    whitelistSaleConfig.price = whitelistSalePriceWei;
+    whitelistSaleConfig.maxPerAddress = maxPerAddressDuringWhitelistSaleMint;
   }
 
   function setMerkleRoot(bytes32 root) external onlyOwner {
-    saleConfig.merkleRoot = root;
+    whitelistSaleConfig.merkleRoot = root;
   }
 
-  function whitelistSaleMint(
-    bytes32[] calldata _merkleProof,
-    uint256 quantity
-  ) external payable callerIsUser {
-    uint256 price = uint256(saleConfig.whitelistSalePrice);
-    uint256 saleStartTime = uint256(saleConfig.whitelistSaleStartTime);
-    uint256 maxPerAddress
-      = uint256(saleConfig.maxPerAddressDuringWhitelistSaleMint);
+  function whitelistSaleMint(bytes32[] calldata _merkleProof, uint256 quantity)
+    external
+    payable
+    callerIsUser
+    nonReentrant
+  {
+    uint256 price = uint256(whitelistSaleConfig.price);
+    uint256 saleStartTime = uint256(whitelistSaleConfig.startTime);
+    uint256 maxPerAddress = uint256(whitelistSaleConfig.maxPerAddress);
     require(price != 0, "whitelist sale has not begun yet");
     require(
       saleStartTime != 0 && block.timestamp >= saleStartTime,
@@ -113,14 +117,16 @@ contract NFT is Ownable, ERC721A, Pausable, ReentrancyGuard {
     require(totalSupply() + quantity <= collectionSize, "reached max supply");
     bytes32 leaf = keccak256 (abi.encodePacked(msg.sender));
     require(
-      MerkleProof.verify(_merkleProof, saleConfig.merkleRoot, leaf),
+      MerkleProof.verify(_merkleProof, whitelistSaleConfig.merkleRoot, leaf),
       "invalid whitelist proof"
     );
     require(
-      numberMinted(msg.sender) + quantity <= maxPerAddress,
+      _whitelistSaleMinted[msg.sender] + quantity <= maxPerAddress,
       "can not mint this many"
     );
     _safeMint(msg.sender, quantity);
+    _whitelistSaleMinted[msg.sender]
+      = _whitelistSaleMinted[msg.sender] + quantity;
     refundIfOver(price * quantity);
   }
 
@@ -129,23 +135,22 @@ contract NFT is Ownable, ERC721A, Pausable, ReentrancyGuard {
     uint64 publicSalePriceWei,
     uint8 maxPerAddressDuringPublicSaleMint
   ) external onlyOwner {
-    saleConfig = SaleConfig(
-      "",
-      0,
-      publicSaleStartTime,
-      0,
-      publicSalePriceWei,
-      0,
-      maxPerAddressDuringPublicSaleMint
-    );
+    whitelistSaleConfig.startTime = 0;
+
+    publicSaleConfig.startTime = publicSaleStartTime;
+    publicSaleConfig.price = publicSalePriceWei;
+    publicSaleConfig.maxPerAddress = maxPerAddressDuringPublicSaleMint;
   }
 
-  function publicSaleMint(uint256 quantity) external payable callerIsUser
+  function publicSaleMint(uint256 quantity)
+    external
+    payable
+    callerIsUser
+    nonReentrant
   {
-    uint256 price = uint256(saleConfig.publicSalePrice);
-    uint256 startTime = uint256(saleConfig.publicSaleStartTime);
-    uint256 maxPerAddress
-      = uint256(saleConfig.maxPerAddressDuringPublicSaleMint);
+    uint256 price = uint256(publicSaleConfig.price);
+    uint256 startTime = uint256(publicSaleConfig.startTime);
+    uint256 maxPerAddress = uint256(publicSaleConfig.maxPerAddress);
     require(price != 0, "public sale has not begun yet");
     require(
       startTime != 0 && block.timestamp >= startTime,
@@ -153,10 +158,12 @@ contract NFT is Ownable, ERC721A, Pausable, ReentrancyGuard {
     );
     require(totalSupply() + quantity <= collectionSize, "reached max supply");
     require(
-      numberMinted(msg.sender) + quantity <= maxPerAddress,
+      _publicSaleMinted[msg.sender] + quantity <= maxPerAddress,
       "can not mint this many"
     );
     _safeMint(msg.sender, quantity);
+    _publicSaleMinted[msg.sender] =
+      _publicSaleMinted[msg.sender] + quantity;
     refundIfOver(price * quantity);
   }
 
@@ -181,6 +188,10 @@ contract NFT is Ownable, ERC721A, Pausable, ReentrancyGuard {
 
   function setBaseURI(string calldata baseURI) external onlyOwner {
     _baseTokenURI = baseURI;
+  }
+
+  function setCollectionSize(uint256 size) external onlyOwner {
+    collectionSize = size;
   }
 
   function withdrawMoney() external onlyOwner nonReentrant {

